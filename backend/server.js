@@ -16,6 +16,19 @@ const {
   getSettlementExceptionList, getSettlementExceptionById, createSettlementException,
   resolveSettlementException, ignoreSettlementException, getSettlementExceptionStatistics
 } = require('./src/settlementService');
+const {
+  getStoreBalance, freezeBalance, unfreezeBalance, deductBalance, addBalance, updateBankInfo
+} = require('./src/storeService');
+const {
+  getWithdrawalList, getWithdrawalById, createWithdrawal, auditWithdrawal,
+  executePay, retryPay, cancelWithdrawal, getWithdrawalStatistics,
+  getAutoWithdrawalConfig, updateAutoWithdrawalConfig
+} = require('./src/withdrawalService');
+const {
+  getBankTransferList, getBankTransferById, createBankTransfer,
+  updateBankTransfer, removeBankTransfer, approveBankTransfer,
+  rejectBankTransfer, getBankTransferStatistics
+} = require('./src/bankTransferService');
 
 const app = express();
 const PORT = 3060;
@@ -614,6 +627,174 @@ app.put('/api/settlement-exceptions/:id/ignore', (req, res) => {
   try {
     const exception = ignoreSettlementException(req.params.id, req.body);
     success(res, exception, '异常已忽略');
+  } catch (error) {
+    fail(res, 400, error.message);
+  }
+});
+
+app.get('/api/bank-transfers/statistics', (req, res) => {
+  const stats = getBankTransferStatistics();
+  success(res, stats);
+});
+
+app.get('/api/bank-transfers', (req, res) => {
+  const { page = 1, pageSize = 10, status, keyword, startDate, endDate } = req.query;
+  const result = getBankTransferList({
+    page: parseInt(page),
+    pageSize: parseInt(pageSize),
+    status, keyword, startDate, endDate
+  });
+  success(res, result);
+});
+
+app.get('/api/bank-transfers/:id', (req, res) => {
+  const transfer = getBankTransferById(req.params.id);
+  if (!transfer) return fail(res, 404, '水单记录不存在');
+  success(res, transfer);
+});
+
+app.post('/api/bank-transfers', (req, res) => {
+  try {
+    const transfer = createBankTransfer(req.body);
+    success(res, transfer, '水单上传成功');
+  } catch (error) {
+    fail(res, 400, error.message);
+  }
+});
+
+app.put('/api/bank-transfers/:id', (req, res) => {
+  try {
+    const transfer = updateBankTransfer(req.params.id, req.body);
+    success(res, transfer, '水单更新成功');
+  } catch (error) {
+    fail(res, 400, error.message);
+  }
+});
+
+app.delete('/api/bank-transfers/:id', (req, res) => {
+  try {
+    removeBankTransfer(req.params.id);
+    success(res, null, '删除成功');
+  } catch (error) {
+    fail(res, 400, error.message);
+  }
+});
+
+app.put('/api/bank-transfers/:id/approve', (req, res) => {
+  try {
+    const result = approveBankTransfer(req.params.id, req.body);
+    success(res, result, '审核通过，已自动分账至微信零钱包');
+  } catch (error) {
+    fail(res, 400, error.message);
+  }
+});
+
+app.put('/api/bank-transfers/:id/reject', (req, res) => {
+  try {
+    const result = rejectBankTransfer(req.params.id, req.body);
+    success(res, result, '已驳回');
+  } catch (error) {
+    fail(res, 400, error.message);
+  }
+});
+
+app.get('/api/stores/:id/balance', (req, res) => {
+  try {
+    const balance = getStoreBalance(req.params.id);
+    success(res, balance);
+  } catch (error) {
+    fail(res, 400, error.message);
+  }
+});
+
+app.put('/api/stores/:id/bank-info', (req, res) => {
+  try {
+    const store = updateBankInfo(req.params.id, req.body);
+    success(res, store, '银行卡信息更新成功');
+  } catch (error) {
+    fail(res, 400, error.message);
+  }
+});
+
+app.get('/api/withdrawals/statistics', (req, res) => {
+  const { storeId } = req.query;
+  const stats = getWithdrawalStatistics({ storeId });
+  success(res, stats);
+});
+
+app.get('/api/withdrawals', (req, res) => {
+  const {
+    page = 1, pageSize = 10, status, keyword,
+    storeId, auditMode, type, startDate, endDate
+  } = req.query;
+  const result = getWithdrawalList({
+    page: parseInt(page),
+    pageSize: parseInt(pageSize),
+    status, keyword, storeId, auditMode, type, startDate, endDate
+  });
+  success(res, result);
+});
+
+app.get('/api/withdrawals/:id', (req, res) => {
+  const withdrawal = getWithdrawalById(req.params.id);
+  if (!withdrawal) return fail(res, 404, '提现记录不存在');
+  success(res, withdrawal);
+});
+
+app.post('/api/withdrawals', (req, res) => {
+  try {
+    const withdrawal = createWithdrawal(req.body);
+    success(res, withdrawal, '提现申请提交成功');
+  } catch (error) {
+    fail(res, 400, error.message);
+  }
+});
+
+app.put('/api/withdrawals/:id/audit', (req, res) => {
+  try {
+    const withdrawal = auditWithdrawal(req.params.id, req.body);
+    success(res, withdrawal, '审核完成');
+  } catch (error) {
+    fail(res, 400, error.message);
+  }
+});
+
+app.put('/api/withdrawals/:id/pay', (req, res) => {
+  try {
+    const withdrawal = executePay(req.params.id);
+    success(res, withdrawal, '打款完成');
+  } catch (error) {
+    fail(res, 400, error.message);
+  }
+});
+
+app.put('/api/withdrawals/:id/retry-pay', (req, res) => {
+  try {
+    const withdrawal = retryPay(req.params.id);
+    success(res, withdrawal, '重试打款成功');
+  } catch (error) {
+    fail(res, 400, error.message);
+  }
+});
+
+app.put('/api/withdrawals/:id/cancel', (req, res) => {
+  try {
+    const withdrawal = cancelWithdrawal(req.params.id);
+    success(res, withdrawal, '已取消提现');
+  } catch (error) {
+    fail(res, 400, error.message);
+  }
+});
+
+app.get('/api/withdrawal-auto-config', (req, res) => {
+  const config = getAutoWithdrawalConfig();
+  success(res, config);
+});
+
+app.put('/api/withdrawal-auto-config', (req, res) => {
+  try {
+    const config = updateAutoWithdrawalConfig(req.body);
+    success(res, config, '自动提现配置更新成功');
   } catch (error) {
     fail(res, 400, error.message);
   }

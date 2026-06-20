@@ -73,6 +73,22 @@
               <el-icon><Share /></el-icon>
               <span>分账管理</span>
             </router-link>
+            <router-link
+              to="/withdrawal"
+              class="nav-item"
+              :class="{ active: route.meta.activeMenu === 'withdrawal' }"
+            >
+              <el-icon><Money /></el-icon>
+              <span>提现管理</span>
+            </router-link>
+            <router-link
+              to="/bank-transfers"
+              class="nav-item"
+              :class="{ active: route.meta.activeMenu === 'bank-transfers' }"
+            >
+              <el-icon><Tickets /></el-icon>
+              <span>水单管理</span>
+            </router-link>
           </nav>
         </div>
         <div class="header-right">
@@ -91,7 +107,10 @@
 
 <script setup>
 import { useRoute } from 'vue-router';
-import { OfficeBuilding, User, Document, Shop, Medal, Notebook, Wallet, Coin, Location, Share } from '@element-plus/icons-vue';
+import {
+  OfficeBuilding, User, Document, Shop, Medal, Notebook, Wallet, Coin,
+  Location, Share, Money
+} from '@element-plus/icons-vue';
 
 const route = useRoute();
 </script>

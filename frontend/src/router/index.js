@@ -64,6 +64,12 @@ const routes = [
     name: 'BankTransferManage',
     component: () => import('@/views/BankTransferManage.vue'),
     meta: { title: '水单管理', activeMenu: 'bank-transfers' }
+  },
+  {
+    path: '/withdrawal',
+    name: 'WithdrawalManage',
+    component: () => import('@/views/WithdrawalManage.vue'),
+    meta: { title: '提现管理', activeMenu: 'withdrawal' }
   }
 ];
 

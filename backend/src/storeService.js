@@ -18,6 +18,11 @@ const mockStores = [
     account: 'bj_chaoyang_001',
     openDate: '2026-03-15',
     status: 'enabled',
+    balance: 128600,
+    frozenBalance: 0,
+    bankName: '中国工商银行',
+    bankAccount: '6222 **** **** 8888',
+    bankAccountName: '张伟',
     createTime: '2026-02-20 10:00:00',
     applicationId: '',
     remark: '北京地区核心旗舰店'
@@ -37,6 +42,11 @@ const mockStores = [
     account: 'sh_pudong_002',
     openDate: '2026-04-01',
     status: 'enabled',
+    balance: 85400,
+    frozenBalance: 0,
+    bankName: '中国建设银行',
+    bankAccount: '6227 **** **** 6666',
+    bankAccountName: '李娜',
     createTime: '2026-03-10 14:30:00',
     applicationId: '',
     remark: '华东地区旗舰体验店'
@@ -56,6 +66,11 @@ const mockStores = [
     account: 'hz_xihu_003',
     openDate: '2026-05-10',
     status: 'enabled',
+    balance: 56800,
+    frozenBalance: 5000,
+    bankName: '招商银行',
+    bankAccount: '6225 **** **** 3333',
+    bankAccountName: '陈静',
     createTime: '2026-04-15 09:20:00',
     applicationId: '',
     remark: ''
@@ -75,6 +90,11 @@ const mockStores = [
     account: 'gz_tianhe_004',
     openDate: '2026-05-20',
     status: 'disabled',
+    balance: 32000,
+    frozenBalance: 0,
+    bankName: '中国农业银行',
+    bankAccount: '6228 **** **** 9999',
+    bankAccountName: '王强',
     createTime: '2026-04-28 16:00:00',
     applicationId: '',
     remark: '因违规操作被暂停账号'
@@ -94,8 +114,85 @@ const mockStores = [
     account: 'sz_nanshan_005',
     openDate: '2026-06-01',
     status: 'enabled',
+    balance: 12500,
+    frozenBalance: 0,
+    bankName: '交通银行',
+    bankAccount: '6222 **** **** 7777',
+    bankAccountName: '赵敏',
     createTime: '2026-05-10 11:15:00',
     applicationId: '',
+    remark: ''
+  },
+  {
+    id: 'ST006',
+    storeNo: 'MD2026060004',
+    storeName: '深圳南山旗舰店',
+    partnerName: '赵六',
+    partnerPhone: '13600136004',
+    companyName: '深圳市创新科技有限公司',
+    province: '广东省',
+    city: '深圳市',
+    district: '南山区',
+    address: '南山区科技园南区高新南一道飞亚达大厦10层',
+    storeArea: '500平米',
+    account: 'shenzhen_cx01',
+    openDate: '2026-06-19',
+    status: 'enabled',
+    balance: 156000,
+    frozenBalance: 0,
+    bankName: '招商银行深圳分行',
+    bankAccount: '6225 **** **** 1234',
+    bankAccountName: '赵六',
+    createTime: '2026-06-15 10:00:00',
+    applicationId: '4',
+    remark: '深圳地区旗舰门店'
+  },
+  {
+    id: 'ST007',
+    storeNo: 'MD2026060007',
+    storeName: '武汉江汉标准店',
+    partnerName: '周九',
+    partnerPhone: '13300133007',
+    companyName: '武汉市江城商业有限公司',
+    province: '湖北省',
+    city: '武汉市',
+    district: '江汉区',
+    address: '江汉区解放大道128号',
+    storeArea: '160平米',
+    account: 'wuhan_jc01',
+    openDate: '',
+    status: 'enabled',
+    balance: 4200,
+    frozenBalance: 0,
+    bankName: '中国工商银行武汉分行',
+    bankAccount: '6222 **** **** 5678',
+    bankAccountName: '周九',
+    createTime: '2026-06-12 14:30:00',
+    applicationId: '7',
+    remark: ''
+  },
+  {
+    id: 'ST008',
+    storeNo: 'MD2026060008',
+    storeName: '南京鼓楼标准店',
+    partnerName: '吴十',
+    partnerPhone: '13200132008',
+    companyName: '南京市金陵商贸有限公司',
+    province: '江苏省',
+    city: '南京市',
+    district: '鼓楼区',
+    address: '鼓楼区中山路88号',
+    storeArea: '170平米',
+    account: 'nanjing_jl01',
+    openDate: '2026-06-15',
+    status: 'enabled',
+    balance: 8900,
+    frozenBalance: 0,
+    bankName: '中国银行南京分行',
+    bankAccount: '6217 **** **** 4321',
+    bankAccountName: '吴十',
+    createTime: '2026-06-10 09:00:00',
+    applicationId: '8',
     remark: ''
   }
 ];
@@ -200,6 +297,11 @@ const createStore = (payload) => {
     account,
     openDate: openDate || now.substring(0, 10),
     status: 'enabled',
+    balance: 0,
+    frozenBalance: 0,
+    bankName: '',
+    bankAccount: '',
+    bankAccountName: '',
     createTime: now,
     applicationId,
     remark
@@ -276,7 +378,8 @@ const updateStore = (id, payload) => {
   const allowedFields = [
     'storeNo', 'storeName', 'partnerName', 'partnerPhone',
     'companyName', 'province', 'city', 'district', 'address', 'storeArea',
-    'account', 'openDate', 'remark', 'applicationId'
+    'account', 'openDate', 'remark', 'applicationId',
+    'bankName', 'bankAccount', 'bankAccountName'
   ];
   allowedFields.forEach(field => {
     if (payload[field] !== undefined) {
@@ -302,6 +405,108 @@ const getStoresByCity = (city) => {
   return stores.filter(s => s.city === city).map(formatStore);
 };
 
+const getStoreBalance = (storeId) => {
+  const store = stores.find(s => s.id === String(storeId));
+  if (!store) throw new Error('门店不存在');
+  return {
+    storeNo: store.storeNo,
+    storeName: store.storeName,
+    balance: store.balance || 0,
+    frozenBalance: store.frozenBalance || 0,
+    availableBalance: (store.balance || 0) - (store.frozenBalance || 0)
+  };
+};
+
+const freezeBalance = (storeId, amount) => {
+  const store = stores.find(s => s.id === String(storeId));
+  if (!store) throw new Error('门店不存在');
+  
+  const amt = Number(amount);
+  if (amt <= 0) throw new Error('冻结金额必须大于0');
+  
+  const available = (store.balance || 0) - (store.frozenBalance || 0);
+  if (amt > available) {
+    throw new Error('可用余额不足');
+  }
+  
+  store.frozenBalance = (store.frozenBalance || 0) + amt;
+  return {
+    balance: store.balance,
+    frozenBalance: store.frozenBalance,
+    availableBalance: store.balance - store.frozenBalance
+  };
+};
+
+const unfreezeBalance = (storeId, amount) => {
+  const store = stores.find(s => s.id === String(storeId));
+  if (!store) throw new Error('门店不存在');
+  
+  const amt = Number(amount);
+  if (amt <= 0) throw new Error('解冻金额必须大于0');
+  
+  if (amt > (store.frozenBalance || 0)) {
+    throw new Error('解冻金额不能大于冻结余额');
+  }
+  
+  store.frozenBalance = (store.frozenBalance || 0) - amt;
+  return {
+    balance: store.balance,
+    frozenBalance: store.frozenBalance,
+    availableBalance: store.balance - store.frozenBalance
+  };
+};
+
+const deductBalance = (storeId, amount) => {
+  const store = stores.find(s => s.id === String(storeId));
+  if (!store) throw new Error('门店不存在');
+  
+  const amt = Number(amount);
+  if (amt <= 0) throw new Error('扣款金额必须大于0');
+  
+  const available = (store.balance || 0) - (store.frozenBalance || 0);
+  if (amt > available) {
+    throw new Error('可用余额不足');
+  }
+  
+  store.balance = (store.balance || 0) - amt;
+  if (store.frozenBalance > 0) {
+    store.frozenBalance = Math.max(0, (store.frozenBalance || 0) - amt);
+  }
+  
+  return {
+    balance: store.balance,
+    frozenBalance: store.frozenBalance,
+    availableBalance: store.balance - store.frozenBalance
+  };
+};
+
+const addBalance = (storeId, amount, remark = '') => {
+  const store = stores.find(s => s.id === String(storeId));
+  if (!store) throw new Error('门店不存在');
+  
+  const amt = Number(amount);
+  if (amt <= 0) throw new Error('充值金额必须大于0');
+  
+  store.balance = (store.balance || 0) + amt;
+  return {
+    balance: store.balance,
+    frozenBalance: store.frozenBalance || 0,
+    availableBalance: store.balance - (store.frozenBalance || 0)
+  };
+};
+
+const updateBankInfo = (storeId, bankInfo) => {
+  const store = stores.find(s => s.id === String(storeId));
+  if (!store) throw new Error('门店不存在');
+  
+  const { bankName, bankAccount, bankAccountName } = bankInfo;
+  if (bankName !== undefined) store.bankName = bankName;
+  if (bankAccount !== undefined) store.bankAccount = bankAccount;
+  if (bankAccountName !== undefined) store.bankAccountName = bankAccountName;
+  
+  return formatStore(store);
+};
+
 module.exports = {
   getStoreList,
   getStoreById,
@@ -313,5 +518,11 @@ module.exports = {
   updateStoreStatus,
   updateStore,
   resetPassword,
-  getStoresByCity
+  getStoresByCity,
+  getStoreBalance,
+  freezeBalance,
+  unfreezeBalance,
+  deductBalance,
+  addBalance,
+  updateBankInfo
 };
