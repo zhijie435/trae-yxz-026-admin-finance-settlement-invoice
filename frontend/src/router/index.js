@@ -58,6 +58,12 @@ const routes = [
     name: 'SettlementManage',
     component: () => import('@/views/SettlementManage.vue'),
     meta: { title: '分账管理', activeMenu: 'settlement' }
+  },
+  {
+    path: '/bank-transfers',
+    name: 'BankTransferManage',
+    component: () => import('@/views/BankTransferManage.vue'),
+    meta: { title: '水单管理', activeMenu: 'bank-transfers' }
   }
 ];
 

@@ -27,14 +27,14 @@
             <el-badge v-if="exceptionStats.open > 0" :value="exceptionStats.open" class="tab-badge" />
           </span>
         </template>
-        <SettlementExceptionTab @refresh="loadExceptionStats" />
+        <SettlementExceptionTab :exception-stats="exceptionStats" @refresh="loadExceptionStats" />
       </el-tab-pane>
     </el-tabs>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, provide } from 'vue';
+import { ref, onMounted } from 'vue';
 import SettlementRuleTab from './SettlementRuleTab.vue';
 import SettlementRecordTab from './SettlementRecordTab.vue';
 import SettlementExceptionTab from './SettlementExceptionTab.vue';
@@ -50,8 +50,6 @@ const loadExceptionStats = async () => {
     console.error('加载异常统计失败', e);
   }
 };
-
-provide('loadExceptionStats', loadExceptionStats);
 
 onMounted(() => {
   loadExceptionStats();

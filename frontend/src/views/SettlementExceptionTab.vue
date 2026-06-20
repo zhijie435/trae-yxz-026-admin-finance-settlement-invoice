@@ -311,16 +311,22 @@
 import { ref, reactive, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import {
-  getSettlementExceptionList, getSettlementExceptionStatistics, getSettlementExceptionDetail,
+  getSettlementExceptionList, getSettlementExceptionDetail,
   addSettlementException, resolveSettlementException, ignoreSettlementException
 } from '../api/settlement.js';
+
+const props = defineProps({
+  exceptionStats: {
+    type: Object,
+    default: () => ({ total: 0, open: 0, resolved: 0, ignored: 0, totalAmount: 0, openAmount: 0 })
+  }
+});
 
 const emit = defineEmits(['refresh']);
 
 const loading = ref(false);
 const submitting = ref(false);
 const tableData = ref([]);
-const exceptionStats = ref({ total: 0, open: 0, resolved: 0, ignored: 0, totalAmount: 0, openAmount: 0 });
 
 const filterForm = reactive({
   status: '',
@@ -378,13 +384,8 @@ const resolveRules = {
   handleResult: [{ required: true, message: '请输入处理结果', trigger: 'blur' }]
 };
 
-const loadExceptionStats = async () => {
-  try {
-    exceptionStats.value = await getSettlementExceptionStatistics();
-    emit('refresh');
-  } catch (e) {
-    console.error('加载异常统计失败', e);
-  }
+const refreshStats = () => {
+  emit('refresh');
 };
 
 const loadList = async () => {
@@ -449,7 +450,7 @@ const handleSubmit = async () => {
     ElMessage.success('异常登记成功');
     formVisible.value = false;
     loadList();
-    loadExceptionStats();
+    refreshStats();
   } catch (e) {
     ElMessage.error(e.message || '登记失败');
   } finally {
@@ -486,7 +487,7 @@ const handleSubmitResolve = async () => {
     ElMessage.success('异常已标记为解决');
     resolveVisible.value = false;
     loadList();
-    loadExceptionStats();
+    refreshStats();
   } catch (e) {
     ElMessage.error(e.message || '处理失败');
   } finally {
@@ -508,7 +509,7 @@ const handleSubmitIgnore = async () => {
     ElMessage.success('异常已标记为忽略');
     ignoreVisible.value = false;
     loadList();
-    loadExceptionStats();
+    refreshStats();
   } catch (e) {
     ElMessage.error(e.message || '操作失败');
   } finally {
@@ -517,7 +518,6 @@ const handleSubmitIgnore = async () => {
 };
 
 onMounted(() => {
-  loadExceptionStats();
   loadList();
 });
 </script>
